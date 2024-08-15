@@ -6,20 +6,17 @@ import subprocess
 import sys
 import glob
 
-def is_mounted(mount_point):
-    """Check if a mount point is currently in use."""
-    try:
-        # Check if the mount point is in the output of the `mount` command
-        output = subprocess.check_output(['mount']).decode('utf-8')
-        return mount_point in output
-    except subprocess.CalledProcessError as e:
-        print(f"Error checking mount status: {e}")
-        sys.exit(1)
+def create_mount_point(mount_point):
+    if not os.path.exists(mount_point):
+        try:
+            os.makedirs(mount_point)
+            print(f"Created mount point: {mount_point}")
+        except OSError as e:
+            print(f"Error creating mount point directory: {e}")
+            sys.exit(1)
 
 def mount_usb(drive_path, mount_point):
-    if is_mounted(mount_point):
-        print(f"{mount_point} is already mounted.")
-        return
+    create_mount_point(mount_point)
     try:
         subprocess.run(['sudo', 'mount', drive_path, mount_point], check=True)
         print(f"Mounted {drive_path} to {mount_point}")
@@ -96,7 +93,7 @@ def main():
     unmount_usb(mount_point)
 
     # Final instructions to the user
-    print("\nProcess completed. Please remove the USB device and power cycle the sBitx using the power switch.")
+    print("\nProcess completed. Please remove the USB device and power cycle the Raspberry Pi using the power switch.")
 
 if __name__ == "__main__":
     main()
