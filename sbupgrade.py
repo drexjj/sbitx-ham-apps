@@ -83,7 +83,7 @@ def main():
     unmount_usb(mount_point)
 
     # Final instructions to the user
-    print("\nProcess completed. Please remove the USB device and power cycle the Raspberry Pi using the power switch.")
+    print("\nProcess completed. Please remove the USB device and power cycle the sBitx using the power switch.")
 
 if __name__ == "__main__":
     main()
