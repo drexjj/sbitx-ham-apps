@@ -6,7 +6,20 @@ import subprocess
 import sys
 import glob
 
+def is_mounted(mount_point):
+    """Check if a mount point is currently in use."""
+    try:
+        # Check if the mount point is in the output of the `mount` command
+        output = subprocess.check_output(['mount']).decode('utf-8')
+        return mount_point in output
+    except subprocess.CalledProcessError as e:
+        print(f"Error checking mount status: {e}")
+        sys.exit(1)
+
 def mount_usb(drive_path, mount_point):
+    if is_mounted(mount_point):
+        print(f"{mount_point} is already mounted.")
+        return
     try:
         subprocess.run(['sudo', 'mount', drive_path, mount_point], check=True)
         print(f"Mounted {drive_path} to {mount_point}")
