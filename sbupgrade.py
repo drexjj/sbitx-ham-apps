@@ -181,7 +181,7 @@ def main():
 
     # Final instructions to the user
     logging.info("Process completed successfully.")
-    input("Please remove the USB device and press any key to reboot.")
+    input("Please remove the USB device and press the ENTER key to reboot.")
     os.system('sudo reboot')
 
 if __name__ == "__main__":
