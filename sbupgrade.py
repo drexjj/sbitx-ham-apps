@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import sys
 import glob
+from tqdm import tqdm
 
 def create_mount_point(mount_point):
     if not os.path.exists(mount_point):
@@ -49,9 +50,21 @@ def unmount_usb(mount_point):
     except subprocess.CalledProcessError as e:
         print(f"Error unmounting USB drive: {e}")
 
+def copy_with_progress(source, destination):
+    """Copies files with a progress bar."""
+    total_size = sum(os.path.getsize(f) for f in glob.glob(os.path.join(source, '**', '*'), recursive=True) if os.path.isfile(f))
+    with tqdm(total=total_size, unit='B', unit_scale=True, desc='Copying') as pbar:
+        for root, _, files in os.walk(source):
+            for file in files:
+                src_file = os.path.join(root, file)
+                dst_file = os.path.join(destination, os.path.relpath(src_file, source))
+                os.makedirs(os.path.dirname(dst_file), exist_ok=True)
+                shutil.copy2(src_file, dst_file)
+                pbar.update(os.path.getsize(src_file))
+
 def backup_data(source_folder, backup_folder):
     try:
-        shutil.copytree(source_folder, backup_folder)
+        copy_with_progress(source_folder, backup_folder)
         print(f"Backed up data from {source_folder} to {backup_folder}")
     except Exception as e:
         print(f"Error backing up data: {e}")
@@ -59,15 +72,26 @@ def backup_data(source_folder, backup_folder):
 
 def restore_data(backup_folder, target_folder):
     try:
-        shutil.copytree(backup_folder, target_folder, dirs_exist_ok=True)
+        copy_with_progress(backup_folder, target_folder)
         print(f"Restored data from {backup_folder} to {target_folder}")
     except Exception as e:
         print(f"Error restoring data: {e}")
         sys.exit(1)
 
 def flash_os(image_path, target_drive):
+    # Calculate the size of the image
+    image_size = os.path.getsize(image_path)
+    dd_command = ['sudo', 'dd', f'if={image_path}', f'of={target_drive}', 'bs=4M', 'conv=fsync']
     try:
-        subprocess.run(['sudo', 'dd', f'if={image_path}', f'of={target_drive}', 'bs=4M', 'conv=fsync'], check=True)
+        with tqdm(total=image_size, unit='B', unit_scale=True, desc='Flashing') as pbar:
+            process = subprocess.Popen(dd_command, stderr=subprocess.PIPE)
+            while True:
+                output = process.stderr.read(1024)
+                if output == b'' and process.poll() is not None:
+                    break
+                if output:
+                    # Assuming dd outputs progress in a consistent format, which might require parsing
+                    pbar.update(len(output))
         print("\nFlashing completed successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Error flashing OS: {e}")
@@ -111,7 +135,7 @@ def main():
     unmount_usb(mount_point)
 
     # Final instructions to the user
-    print("\nProcess completed. Please remove the USB device and power cycle the sBitx using the power switch.")
+    print("\nProcess completed. Please remove the USB device and power cycle the Raspberry Pi using the power switch.")
 
 if __name__ == "__main__":
     main()
