@@ -15,8 +15,26 @@ def create_mount_point(mount_point):
             print(f"Error creating mount point directory: {e}")
             sys.exit(1)
 
+def is_mounted(drive_path):
+    try:
+        output = subprocess.check_output(['mount']).decode('utf-8')
+        return any(drive_path in line for line in output.splitlines())
+    except subprocess.CalledProcessError as e:
+        print(f"Error checking mount status: {e}")
+        return False
+
+def unmount_drive(drive_path):
+    try:
+        subprocess.run(['sudo', 'umount', drive_path], check=True)
+        print(f"Unmounted {drive_path}")
+    except subprocess.CalledProcessError as e:
+        print(f"Error unmounting drive: {e}")
+        sys.exit(1)
+
 def mount_usb(drive_path, mount_point):
     create_mount_point(mount_point)
+    if is_mounted(drive_path):
+        unmount_drive(drive_path)
     try:
         subprocess.run(['sudo', 'mount', drive_path, mount_point], check=True)
         print(f"Mounted {drive_path} to {mount_point}")
@@ -93,7 +111,7 @@ def main():
     unmount_usb(mount_point)
 
     # Final instructions to the user
-    print("\nProcess completed. Please remove the USB device and power cycle the Raspberry Pi using the power switch.")
+    print("\nProcess completed. Please remove the USB device and power cycle the sBitx using the power switch.")
 
 if __name__ == "__main__":
     main()
