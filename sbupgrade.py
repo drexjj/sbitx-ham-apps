@@ -5,7 +5,7 @@ import shutil
 import subprocess
 import sys
 import glob
-from tqdm import tqdm
+import time
 
 def create_mount_point(mount_point):
     if not os.path.exists(mount_point):
@@ -50,17 +50,25 @@ def unmount_usb(mount_point):
     except subprocess.CalledProcessError as e:
         print(f"Error unmounting USB drive: {e}")
 
+def manual_progress_bar(progress, total, bar_length=50):
+    percent = float(progress) / total
+    arrow = '-' * int(round(percent * bar_length) - 1) + '>'
+    spaces = ' ' * (bar_length - len(arrow))
+    print(f"\rProgress: [{arrow + spaces}] {int(round(percent * 100))}%", end='')
+
 def copy_with_progress(source, destination):
-    """Copies files with a progress bar."""
+    """Copies files with a manual progress bar."""
     total_size = sum(os.path.getsize(f) for f in glob.glob(os.path.join(source, '**', '*'), recursive=True) if os.path.isfile(f))
-    with tqdm(total=total_size, unit='B', unit_scale=True, desc='Copying') as pbar:
-        for root, _, files in os.walk(source):
-            for file in files:
-                src_file = os.path.join(root, file)
-                dst_file = os.path.join(destination, os.path.relpath(src_file, source))
-                os.makedirs(os.path.dirname(dst_file), exist_ok=True)
-                shutil.copy2(src_file, dst_file)
-                pbar.update(os.path.getsize(src_file))
+    copied_size = 0
+    for root, _, files in os.walk(source):
+        for file in files:
+            src_file = os.path.join(root, file)
+            dst_file = os.path.join(destination, os.path.relpath(src_file, source))
+            os.makedirs(os.path.dirname(dst_file), exist_ok=True)
+            shutil.copy2(src_file, dst_file)
+            copied_size += os.path.getsize(src_file)
+            manual_progress_bar(copied_size, total_size)
+    print("\nCopy completed.")
 
 def backup_data(source_folder, backup_folder):
     try:
@@ -79,19 +87,18 @@ def restore_data(backup_folder, target_folder):
         sys.exit(1)
 
 def flash_os(image_path, target_drive):
-    # Calculate the size of the image
     image_size = os.path.getsize(image_path)
     dd_command = ['sudo', 'dd', f'if={image_path}', f'of={target_drive}', 'bs=4M', 'conv=fsync']
     try:
-        with tqdm(total=image_size, unit='B', unit_scale=True, desc='Flashing') as pbar:
-            process = subprocess.Popen(dd_command, stderr=subprocess.PIPE)
+        with subprocess.Popen(dd_command, stderr=subprocess.PIPE) as process:
+            copied_size = 0
             while True:
                 output = process.stderr.read(1024)
                 if output == b'' and process.poll() is not None:
                     break
                 if output:
-                    # Assuming dd outputs progress in a consistent format, which might require parsing
-                    pbar.update(len(output))
+                    copied_size += len(output)
+                    manual_progress_bar(copied_size, image_size)
         print("\nFlashing completed successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Error flashing OS: {e}")
@@ -105,7 +112,7 @@ def find_image(mount_point):
     return images[0]
 
 def main():
-    usb_drive = '/dev/sda1'  # Replace with the actual USB drive path
+    usb_drive = '/dev/sda1'
     mount_point = '/mnt/usb'
     internal_drive = '/dev/mmcblk0'
 
@@ -135,7 +142,7 @@ def main():
     unmount_usb(mount_point)
 
     # Final instructions to the user
-    print("\nProcess completed. Please remove the USB device and power cycle the Raspberry Pi using the power switch.")
+    print("\nProcess completed. Please remove the USB storage device and power cycle the Raspberry Pi using the power switch.")
 
 if __name__ == "__main__":
     main()
