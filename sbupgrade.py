@@ -84,7 +84,15 @@ def manual_progress_bar(progress, total, bar_length=50):
 def copy_with_progress(source, destination):
     source = Path(source)
     destination = Path(destination)
+    
+    # Calculate total size of files in the source directory
     total_size = sum(f.stat().st_size for f in source.rglob('*') if f.is_file())
+    
+    # Check if total_size is zero
+    if total_size == 0:
+        logging.error(f"Total size of files to copy is zero. Source directory might be empty: {source}")
+        sys.exit(1)
+
     copied_size = 0
     for root, _, files in os.walk(source):
         for file in files:
