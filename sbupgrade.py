@@ -5,7 +5,31 @@ import shutil
 import subprocess
 import sys
 import glob
-import time
+
+# ANSI escape sequences for colors and cursor control
+class Colors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+def clear_screen():
+    """Clears the terminal screen."""
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+def print_header():
+    """Prints the header for the script."""
+    clear_screen()
+    print(f"{Colors.HEADER}{Colors.BOLD}")
+    print("#####################################################")
+    print("#            JJ's sBitx OS Flash Utility            #")
+    print("#####################################################")
+    print(f"{Colors.ENDC}")
 
 def create_mount_point(mount_point):
     if not os.path.exists(mount_point):
@@ -52,7 +76,7 @@ def unmount_usb(mount_point):
 
 def manual_progress_bar(progress, total, bar_length=50):
     percent = float(progress) / total
-    arrow = '-' * int(round(percent * bar_length) - 1) + '>'
+    arrow = '=' * int(round(percent * bar_length) - 1) + '>'
     spaces = ' ' * (bar_length - len(arrow))
     print(f"\rProgress: [{arrow + spaces}] {int(round(percent * 100))}%", end='')
 
@@ -112,7 +136,8 @@ def find_image(mount_point):
     return images[0]
 
 def main():
-    usb_drive = '/dev/sda1'
+    print_header()
+    usb_drive = '/dev/sda1'  # Replace with the actual USB drive path
     mount_point = '/mnt/usb'
     internal_drive = '/dev/mmcblk0'
 
@@ -142,7 +167,9 @@ def main():
     unmount_usb(mount_point)
 
     # Final instructions to the user
-    print("\nProcess completed. Please remove the USB storage device and power cycle the Raspberry Pi using the power switch.")
+    print("\nProcess completed successfully.")
+    input("Please remove the USB device and press any key to reboot.")
+    os.system('sudo reboot')
 
 if __name__ == "__main__":
     main()
