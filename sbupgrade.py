@@ -8,7 +8,6 @@ import glob
 import logging
 from pathlib import Path
 
-# Setting up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class Colors:
@@ -85,22 +84,26 @@ def copy_with_progress(source, destination):
     source = Path(source)
     destination = Path(destination)
     
-    # Calculate total size of files in the source directory
-    total_size = sum(f.stat().st_size for f in source.rglob('*') if f.is_file())
+    total_size = 0
+    for root, _, files in os.walk(source):
+        for file in files:
+            src_file = os.path.join(root, file)
+            total_size += os.path.getsize(src_file)
     
-    # Check if total_size is zero
     if total_size == 0:
         logging.error(f"Total size of files to copy is zero. Source directory might be empty: {source}")
         sys.exit(1)
+    
+    logging.info(f"Total size to copy: {total_size} bytes")
 
     copied_size = 0
     for root, _, files in os.walk(source):
         for file in files:
-            src_file = Path(root) / file
-            dst_file = destination / src_file.relative_to(source)
-            dst_file.parent.mkdir(parents=True, exist_ok=True)
+            src_file = os.path.join(root, file)
+            dst_file = os.path.join(destination, os.path.relpath(src_file, source))
+            os.makedirs(os.path.dirname(dst_file), exist_ok=True)
             shutil.copy2(src_file, dst_file)
-            copied_size += src_file.stat().st_size
+            copied_size += os.path.getsize(src_file)
             manual_progress_bar(copied_size, total_size)
     print("\nCopy completed.")
 
@@ -147,7 +150,7 @@ def find_image(mount_point):
 
 def main():
     print_header()
-    usb_drive = '/dev/sda1'  # Replace with the actual USB drive path
+    usb_drive = '/dev/sda1'
     mount_point = Path('/mnt/usb')
     internal_drive = '/dev/mmcblk0'
 
