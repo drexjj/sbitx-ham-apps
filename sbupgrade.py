@@ -9,7 +9,7 @@ import logging
 from pathlib import Path
 import time  # Import the time module
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname=s') - %(message)s')
 
 class Colors:
     HEADER = '\033[95m'
@@ -67,6 +67,15 @@ def mount_usb(drive_path, mount_point):
         logging.info(f"Mounted {drive_path} to {mount_point}")
     except subprocess.CalledProcessError as e:
         logging.error(f"Error mounting USB drive: {e}")
+        sys.exit(1)
+
+def mount_internal_sd(internal_drive, mount_point):
+    create_mount_point(mount_point)
+    try:
+        subprocess.run(['sudo', 'mount', internal_drive, str(mount_point)], check=True)
+        logging.info(f"Mounted internal SD card at {mount_point}")
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Error mounting internal SD card: {e}")
         sys.exit(1)
 
 def unmount_usb(mount_point):
@@ -128,6 +137,16 @@ def restore_data(backup_folder, target_folder):
 def flash_os(image_path, target_drive):
     image_size = os.path.getsize(image_path)
     dd_command = ['sudo', 'dd', f'if={image_path}', f'of={target_drive}', 'bs=4M', 'conv=fsync']
+    
+    # try rescue mode
+    try:
+        logging.info("Switching to rescue mode on internal SD card...")
+        subprocess.run(['sudo', 'systemctl', 'isolate', 'rescue'], check=True)
+        time.sleep(5)  # wait for rescue mode attempt
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Error switching to rescue mode: {e}")
+        sys.exit(1)
+    
     try:
         with subprocess.Popen(dd_command, stderr=subprocess.PIPE) as process:
             copied_size = 0
@@ -155,6 +174,7 @@ def main():
     usb_drive = '/dev/sda1'
     mount_point = Path('/mnt/usb')
     internal_drive = '/dev/mmcblk0'
+    sd_mount_point = Path('/mnt/internal_sd')
 
     data_folder = Path('/home/pi/sbitx/data')
     backup_folder = mount_point / 'data_backup'
@@ -172,6 +192,9 @@ def main():
     # Flash the OS image to the internal drive
     flash_os(os_image_path, internal_drive)
 
+    # Remount the internal SD card
+    mount_internal_sd(internal_drive, sd_mount_point)
+
     # Remount the USB drive to restore data
     mount_usb(usb_drive, mount_point)
 
@@ -179,7 +202,10 @@ def main():
     restore_data(backup_folder, data_folder)
 
     # Unmount the USB drive
-    #unmount_usb(mount_point)
+    unmount_usb(mount_point)
+
+    # Unmount the internal SD card
+    unmount_usb(sd_mount_point)
 
     # Final instructions to the user
     logging.info("Process completed successfully.")
