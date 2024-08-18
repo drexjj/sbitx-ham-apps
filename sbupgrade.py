@@ -7,6 +7,7 @@ import sys
 import glob
 import logging
 from pathlib import Path
+import time  # Import the time module
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -60,6 +61,7 @@ def mount_usb(drive_path, mount_point):
     create_mount_point(mount_point)
     if is_mounted(drive_path):
         unmount_drive(drive_path)
+        time.sleep(2)  # Added delay for remount
     try:
         subprocess.run(['sudo', 'mount', drive_path, str(mount_point)], check=True)
         logging.info(f"Mounted {drive_path} to {mount_point}")
