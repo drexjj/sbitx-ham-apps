@@ -9,7 +9,8 @@ import logging
 from pathlib import Path
 import time  # Import the time module
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname=s') - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 class Colors:
     HEADER = '\033[95m'
