@@ -179,7 +179,7 @@ def main():
     restore_data(backup_folder, data_folder)
 
     # Unmount the USB drive
-    unmount_usb(mount_point)
+    #unmount_usb(mount_point)
 
     # Final instructions to the user
     logging.info("Process completed successfully.")
