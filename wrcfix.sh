@@ -9,8 +9,8 @@ if [ ! -f "$RC_LOCAL" ]; then
     exit 1
 fi
 
-sudo sed -i 's/modprobe snd-aloop enable=1,1,1 index=1,2,3 timer_source=hw:0,0/modprobe snd-aloop enable=1,1,1 index=1,2,3 timer_source=hw:0,0/' "$RC_LOCAL"
+sudo sed -i 's/ timer_source=hw:0,0//g' "$RC_LOCAL"
 
-echo "Replacement complete in $RC_LOCAL."
+echo "Removed 'timer_source=hw:0,0' from $RC_LOCAL."
 
 rm -- "$0"
