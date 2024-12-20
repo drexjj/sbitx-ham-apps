@@ -59,6 +59,13 @@ def modify_qsstv_conf(file_path):
     except Exception as e:
         print(f"An error occurred: {e}")
 
+def reboot_system():
+    try:
+        print("Rebooting system...")
+        subprocess.run(["sudo", "reboot"])
+    except Exception as e:
+        print(f"An error occurred while trying to reboot: {e}")
+
 if __name__ == "__main__":
     elevate_to_sudo()
     alsa_conf_path = "/etc/modprobe.d/alsa.conf"
@@ -66,3 +73,5 @@ if __name__ == "__main__":
 
     qsstv_conf_path = "/home/pi/.config/ON4QZ/qsstv_9.0.conf"
     modify_qsstv_conf(qsstv_conf_path)
+
+    reboot_system()
