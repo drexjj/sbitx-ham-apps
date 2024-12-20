@@ -2,6 +2,7 @@
 import os
 import shutil
 import sys
+import subprocess
 
 def elevate_to_sudo():
     if os.geteuid() != 0:
