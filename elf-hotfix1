@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+import os
+import shutil
+import sys
+
+def elevate_to_sudo():
+    if os.geteuid() != 0:
+        print("Re-running script with sudo privileges.")
+        os.execvp('sudo', ['sudo'] + sys.argv)
+
+def comment_out_alsa_conf(file_path):
+    try:
+        if not os.path.exists(file_path):
+            print(f"Error: File {file_path} does not exist.")
+            return
+
+        backup_path = f"{file_path}.backup"
+        shutil.copy(file_path, backup_path)
+        print(f"Backup created at {backup_path}.")
+
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+
+        commented_lines = [f"# {line}" if not line.strip().startswith('#') else line for line in lines]
+
+        with open(file_path, 'w') as file:
+            file.writelines(commented_lines)
+
+        print(f"Successfully commented out the contents of {file_path}.")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+def modify_qsstv_conf(file_path):
+    try:
+        if not os.path.exists(file_path):
+            print(f"Error: File {file_path} does not exist.")
+            return
+
+        backup_path = f"{file_path}.backup"
+        shutil.copy(file_path, backup_path)
+        print(f"Backup created at {backup_path}.")
+
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+
+        modified_lines = [
+            line.replace(
+                'outputAudioDevice="hw:CARD=Loopback_1,DEV=0 -- Loopback, Loopback PCM"',
+                'outputAudioDevice="plughw:CARD=Loopback_1,DEV=0 -- Loopback, Loopback PCM"'
+            ) for line in lines
+        ]
+
+        with open(file_path, 'w') as file:
+            file.writelines(modified_lines)
+
+        print(f"Successfully updated {file_path}.")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    elevate_to_sudo()
+    alsa_conf_path = "/etc/modprobe.d/alsa.conf"
+    comment_out_alsa_conf(alsa_conf_path)
+
+    qsstv_conf_path = "/home/pi/.config/ON4QZ/qsstv_9.0.conf"
+    modify_qsstv_conf(qsstv_conf_path)
