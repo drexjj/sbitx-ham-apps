@@ -79,6 +79,6 @@ EOF
 
 # Set the executable permissions
 chmod +x "$DESKTOP_FILE"
-chmod +x "APP_PATH"
+chmod +x "/home/pi/sbitx-ham-apps/qtel/qtel-control"
 
 echo "Menu shortcut created at $DESKTOP_FILE"
