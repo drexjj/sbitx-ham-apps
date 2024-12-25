@@ -77,7 +77,8 @@ Terminal=false
 Categories=HamRadio;Utility;
 EOF
 
-# Set the executable permissions on the shortcut file
+# Set the executable permissions
 chmod +x "$DESKTOP_FILE"
+chmod +x "APP_PATH"
 
 echo "Menu shortcut created at $DESKTOP_FILE"
