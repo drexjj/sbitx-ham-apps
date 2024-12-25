@@ -59,7 +59,7 @@ echo "Qtel has been installed and configured successfully."
 
 # Step 2: Create the .desktop file for Qtel Control
 APP_PATH="/home/pi/sbitx-ham-apps/qtel/qtel-control"
-ICON_PATH="/home/pi/sbitx-ham-apps/qtel/qtel.jpg"
+ICON_PATH="/home/pi/sbitx-ham-apps/qtel/qtel.png"
 DESKTOP_FILE="/home/pi/.local/share/applications/qtel-control.desktop"
 
 # Create the .desktop file
