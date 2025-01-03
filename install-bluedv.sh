@@ -2,7 +2,7 @@
 
 # Update the package lists
 echo "Updating package lists..."
-sudo apt-get update
+sudo apt update
 
 # Install mono-complete
 echo "Installing mono-complete..."
