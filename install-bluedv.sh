@@ -15,7 +15,12 @@ sudo mkdir -p /home/pi/bluedv
 # Expand bluedvsbitx.tar.gz to /home/pi/bluedv
 echo "Expanding bluedvsbitx.tar.gz to /home/pi/bluedv..."
 if [ -f "bluedvsbitx.tar.gz" ]; then
-    sudo tar -xvzf bluedvsbitx.tar.gz -C /home/pi/bluedv
+    if sudo tar -xvzf bluedvsbitx.tar.gz -C /home/pi/bluedv; then
+        echo "Bluedvsbitx.tar.gz extracted successfully."
+    else
+        echo "Failed to extract bluedvsbitx.tar.gz. Please check the file and try again."
+        exit 1
+    fi
 else
     echo "File bluedvsbitx.tar.gz not found! Please place it in the same directory as this script."
     exit 1
