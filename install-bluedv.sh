@@ -6,7 +6,7 @@ sudo apt-get update
 
 # Install mono-complete
 echo "Installing mono-complete..."
-sudo apt-get -y install mono-complete
+sudo apt install mono-complete -y
 
 # Create the /home/pi/bluedv directory
 echo "Creating /home/pi/bluedv directory..."
