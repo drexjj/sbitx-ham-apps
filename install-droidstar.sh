@@ -8,11 +8,11 @@ sudo apt-get update
 #echo "Installing dependencies..."
 sudo apt-get -y install libqt6* qml6* binutils
 
-# Create the /home/pi/bluedv directory
+# Create the /home/pi/droidstar directory
 echo "Creating /home/pi/droidstar directory..."
 sudo mkdir -p /home/pi/droidstar
 
-# Expand droidstarsbitx.tar.gz to /home/pi/bluedv
+# Expand droidstarsbitx.tar.gz to /home/pi/droidstar
 echo "Expanding droidstarsbitx.tar.gz to /home/pi/droidstar..."
 if [ -f "droidstarsbitx.tar.gz" ]; then
     sudo tar -xvzf droidstarsbitx.tar.gz -C /home/pi/droidstar
@@ -21,12 +21,12 @@ else
     exit 1
 fi
 
-# Change to /home/pi/bluedv directory
-echo "Changing directory to /home/pi/bluedv..."
+# Change to /home/pi/droidstar directory
+echo "Changing directory to /home/pi/droidstar..."
 cd /home/pi/droidstar || exit 1
 
 # Create a shortcut in the Ham Radio menu
-echo "Creating a shortcut for BlueDV in the Ham Radio menu..."
+echo "Creating a shortcut for Droidstar in the Ham Radio menu..."
 sudo mkdir -p /usr/share/applications
 sudo tee /usr/share/applications/droidstar.desktop > /dev/null <<EOL
 [Desktop Entry]
