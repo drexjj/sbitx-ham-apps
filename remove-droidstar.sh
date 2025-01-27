@@ -24,12 +24,4 @@ if command -v update-desktop-database > /dev/null 2>&1; then
     sudo update-desktop-database
 fi
 
-# Optional: Remove dependencies
-read -p "Do you want to remove the installed dependencies (libqt6*, qml6*, binutils)? [y/N]: " remove_deps
-if [[ "$remove_deps" =~ ^[Yy]$ ]]; then
-    echo "Removing dependencies..."
-    sudo apt-get -y purge libqt6* qml6* binutils
-    sudo apt-get -y autoremove
-fi
-
 echo "DroidStar uninstallation complete."
