@@ -3,23 +3,23 @@
 # Ensure the script is run with sudo
 if [ "$(id -u)" -ne 0 ]; then
     echo "Please run as root or use sudo"
+    exec sudo "$0" "$@"
     exit 1
 fi
 
 # Update package list
-sudo apt update
+apt update
 
 # Install required dependencies
-sudo apt install -y libqt5multimedia5 libqt5serialport5 libqt5network5 libfftw3-single3 libboost-all-dev
+apt install -y libqt5multimedia5 libqt5serialport5 libqt5network5 libfftw3-single3 libboost-all-dev
 
-# change directory
 cd wsjtx
 
 # Install WSJT-X package
-sudo dpkg -i wsjtx-2.7.1-devel_improved_AL_PLUS_241014-RC7_Rpi_arm64.deb
+dpkg -i wsjtx-2.7.1-devel_improved_AL_PLUS_241014-RC7_Rpi_arm64.deb
 
 # Fix any missing dependencies
-sudo apt --fix-broken install -y
+apt --fix-broken install -y
 
 # Verify installation
 if dpkg -l | grep -q wsjtx; then
