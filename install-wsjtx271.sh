@@ -10,6 +10,9 @@ fi
 # Update package list
 apt update
 
+# Remove conflicting wsjtx-doc package if installed
+dpkg -l | grep -q wsjtx-doc && apt remove -y wsjtx-doc
+
 # Install required dependencies
 apt install -y libqt5multimedia5 libqt5serialport5 libqt5network5 libfftw3-single3 libboost-all-dev
 
