@@ -2,7 +2,6 @@
 
 # Ensure the script is run with sudo
 if [ "$(id -u)" -ne 0 ]; then
-    echo "Please run as root or use sudo"
     exec sudo "$0" "$@"
     exit 1
 fi
