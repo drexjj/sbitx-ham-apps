@@ -1,0 +1,3 @@
+test1_DEB.deb
+test2_TAR.tar.gz
+test3_ZIP.zip
