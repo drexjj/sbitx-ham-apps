@@ -2,3 +2,4 @@ myDEB=1.0.0
 myTAR=1.2.1
 myZIP=2.0.0
 wsjtx-2.7.1-devel_improved_PLUS=2.5.1
+wsjtx-2.7.1-devel_improved_PLUS_250106-RC8_Rpi_arm64
