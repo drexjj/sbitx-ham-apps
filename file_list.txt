@@ -1,3 +1,3 @@
-test1_DEB.deb
-test2_TAR.tar.gz
-test3_ZIP.zip
+myDEB-1.0.0.deb
+myTAR-1.2.1.tar.gz
+myZIP-2.0.0.zip
