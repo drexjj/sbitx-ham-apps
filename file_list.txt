@@ -1,4 +1,4 @@
 myDEB-1.0.0.deb
 myTAR-1.2.1.tar.gz
 myZIP-2.0.0.zip
-wsjtx-2.7.1-devel_improved_PLUS_250106-RC8_Rpi_arm64.deb
+wsjtx-2.7.1-devel_improved_PLUS=2.5.1
