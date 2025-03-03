@@ -10,10 +10,6 @@ fi
 # Update package list
 apt update
 
-# Remove conflicting wsjtx-doc and wsjtx-data packages if installed
-dpkg -l | grep -q wsjtx-doc && apt remove -y wsjtx-doc
-dpkg -l | grep -q wsjtx-data && apt remove -y wsjtx-data
-
 # Install required dependencies
 apt install -y libqt5multimedia5 libqt5serialport5 libqt5network5 libfftw3-single3 libboost-all-dev
 
@@ -41,10 +37,10 @@ if ! [[ "$selection" =~ ^[0-9]+$ ]] || [ "$selection" -lt 1 ] || [ "$selection" 
     exit 1
 fi
 
-# Install selected WSJT-X package
+# Install selected WSJT-X package with force overwrite
 selected_file="${wsjtx_files[selection-1]}"
 echo "Installing $selected_file..."
-dpkg -i "$selected_file"
+dpkg -i --force-overwrite "$selected_file"
 
 # Fix any missing dependencies
 apt --fix-broken install -y
