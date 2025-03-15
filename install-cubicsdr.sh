@@ -13,13 +13,36 @@ check_status() {
 
 echo "Starting CubicSDR installation..."
 
-# Extract the SDR software archive
-cd ~/sbitx-ham-apps/cubicsdr/
+# Ensure we're in the right directory
+cd ~/sbitx-ham-apps/cubicsdr/ || {
+    echo "Error: Cannot change to ~/sbitx-ham-apps/cubicsdr/ - directory not found"
+    exit 1
+}
+echo "Current directory: $(pwd)"
+
+# Check for part files and extract
 echo "Extracting sdr_software.tar.gz..."
-cat sdr_software.tar.gz.part* > sdr_software.tar.gz
-mv sdr_software.tar.gz ~/
-tar -xzvf sdr_software.tar.gz
-check_status "Extraction"
+if ls sdr_software.tar.gz.part* >/dev/null 2>&1; then
+    echo "Found part files:"
+    ls -l sdr_software.tar.gz.part*
+    cat sdr_software.tar.gz.part* > sdr_software.tar.gz
+    check_status "Archive part concatenation"
+else
+    echo "Error: No sdr_software.tar.gz.part* files found in $(pwd)"
+    exit 1
+fi
+
+# Verify the concatenated file exists before proceeding
+if [ -f sdr_software.tar.gz ]; then
+    mv -f sdr_software.tar.gz ~/
+    check_status "Moving archive to home directory"
+    cd ~/
+    tar -xzvf sdr_software.tar.gz
+    check_status "Extraction"
+else
+    echo "Error: sdr_software.tar.gz was not created successfully"
+    exit 1
+fi
 
 # Update package list and install dependencies
 echo "Installing dependencies..."
