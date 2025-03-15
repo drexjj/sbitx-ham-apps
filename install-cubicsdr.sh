@@ -17,59 +17,60 @@ echo "Starting CubicSDR installation..."
 cd ~/sbitx-ham-apps/cubicsdr/
 echo "Extracting sdr_software.tar.gz..."
 cat sdr_software.tar.gz.part* > sdr_software.tar.gz
+mv sdr_software.tar.gz ~
 tar -xzvf sdr_software.tar.gz
 check_status "Extraction"
 
 # Update package list and install dependencies
 echo "Installing dependencies..."
 sudo apt-get update
-sudo apt-get install -y cmake build-essential librtlsdr-dev libgl1-mesa-dev libpng-dev libjpeg-dev libtiff-dev zlib1g-dev
+sudo apt-get install -y cmake git build-essential librtlsdr-dev libgl1-mesa-dev libpng-dev libjpeg-dev libtiff-dev zlib1g-dev
 check_status "Dependency installation"
 
 # Install SoapySDR
 echo "Installing SoapySDR..."
-cd ~/sbitx-ham-apps/cubicsdr/SoapySDR/build
+cd ~/SoapySDR/build
 sudo make install
 sudo ldconfig
 check_status "SoapySDR installation"
 
 # Install liquid-dsp
 echo "Installing liquid-dsp..."
-cd ~/sbitx-ham-apps/cubicsdr/liquid-dsp/build
+cd ~/liquid-dsp/build
 sudo make install
 sudo ldconfig
 check_status "liquid-dsp installation"
 
 # Install wxWidgets
 echo "Installing wxWidgets..."
-cd ~/sbitx-ham-apps/cubicsdr/wxWidgets-3.2.1
+cd ~/wxWidgets-3.2.1
 sudo make install
 check_status "wxWidgets installation"
 
 # Install CubicSDR
 echo "Installing CubicSDR..."
-cd ~/sbitx-ham-apps/cubicsdr/CubicSDR/build
-#cmake .. -DwxWidgets_CONFIG_EXECUTABLE=~/Develop/wxWidgets-staticlib/bin/wx-config
+cd ~/CubicSDR/build
+cmake .. -DwxWidgets_CONFIG_EXECUTABLE=~/Develop/wxWidgets-staticlib/bin/wx-config
 check_status "CubicSDR cmake configuration"
-#make
+make
 check_status "CubicSDR make"
 sudo make install
 check_status "CubicSDR installation"
 
 # Install SoapyRTLSDR
 echo "Installing SoapyRTLSDR..."
-cd ~/sbitx-ham-apps/cubicsdr/SoapyRTLSDR/build
-#cmake ..
-#make
+cd ~/SoapyRTLSDR/build
+cmake ..
+make
 sudo make install
 sudo ldconfig
 check_status "SoapyRTLSDR installation"
 
 # Install SoapySDRPlay
 echo "Installing SoapySDRPlay..."
-cd ~/sbitx-ham-apps/cubicsdr/SoapySDRPlay/build
-#cmake ..
-#make
+cd ~/SoapySDRPlay/build
+cmake ..
+make
 sudo make install
 sudo ldconfig
 check_status "SoapySDRPlay installation"
