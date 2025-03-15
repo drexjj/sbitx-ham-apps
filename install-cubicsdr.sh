@@ -28,27 +28,27 @@ check_status "Dependency installation"
 
 # Install SoapySDR
 echo "Installing SoapySDR..."
-cd ~/sbitx-ham-apps/SoapySDR/build
+cd ~/sbitx-ham-apps/cubicsdr/SoapySDR/build
 sudo make install
 sudo ldconfig
 check_status "SoapySDR installation"
 
 # Install liquid-dsp
 echo "Installing liquid-dsp..."
-cd ~/sbitx-ham-apps/liquid-dsp/build
+cd ~/sbitx-ham-apps/cubicsdr/liquid-dsp/build
 sudo make install
 sudo ldconfig
 check_status "liquid-dsp installation"
 
 # Install wxWidgets
 echo "Installing wxWidgets..."
-cd ~/sbitx-ham-apps/wxWidgets-3.2.1
+cd ~/sbitx-ham-apps/cubicsdr/wxWidgets-3.2.1
 sudo make install
 check_status "wxWidgets installation"
 
 # Install CubicSDR
 echo "Installing CubicSDR..."
-cd ~/sbitx-ham-apps/CubicSDR/build
+cd ~/sbitx-ham-apps/cubicsdr/CubicSDR/build
 #cmake .. -DwxWidgets_CONFIG_EXECUTABLE=~/Develop/wxWidgets-staticlib/bin/wx-config
 check_status "CubicSDR cmake configuration"
 #make
@@ -58,7 +58,7 @@ check_status "CubicSDR installation"
 
 # Install SoapyRTLSDR
 echo "Installing SoapyRTLSDR..."
-cd ~/sbitx-ham-apps/SoapyRTLSDR/build
+cd ~/sbitx-ham-apps/cubicsdr/SoapyRTLSDR/build
 #cmake ..
 #make
 sudo make install
@@ -67,7 +67,7 @@ check_status "SoapyRTLSDR installation"
 
 # Install SoapySDRPlay
 echo "Installing SoapySDRPlay..."
-cd ~/sbitx-ham-apps/SoapySDRPlay/build
+cd ~/sbitx-ham-apps/cubicsdr/SoapySDRPlay/build
 #cmake ..
 #make
 sudo make install
