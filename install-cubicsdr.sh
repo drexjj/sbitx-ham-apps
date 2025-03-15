@@ -17,7 +17,7 @@ echo "Starting CubicSDR installation..."
 cd ~/sbitx-ham-apps/cubicsdr/
 echo "Extracting sdr_software.tar.gz..."
 cat sdr_software.tar.gz.part* > sdr_software.tar.gz
-mv sdr_software.tar.gz ~
+mv sdr_software.tar.gz ~/
 tar -xzvf sdr_software.tar.gz
 check_status "Extraction"
 
