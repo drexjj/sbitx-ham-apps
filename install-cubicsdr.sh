@@ -23,7 +23,7 @@ check_status "Extraction"
 # Update package list and install dependencies
 echo "Installing dependencies..."
 sudo apt-get update
-sudo apt-get install -y cmake git build-essential librtlsdr-dev libgl1-mesa-dev libpng-dev libjpeg-dev libtiff-dev zlib1g-dev
+sudo apt-get install -y cmake build-essential librtlsdr-dev libgl1-mesa-dev libpng-dev libjpeg-dev libtiff-dev zlib1g-dev
 check_status "Dependency installation"
 
 # Install SoapySDR
@@ -49,9 +49,9 @@ check_status "wxWidgets installation"
 # Install CubicSDR
 echo "Installing CubicSDR..."
 cd ~/CubicSDR/build
-cmake .. -DwxWidgets_CONFIG_EXECUTABLE=~/Develop/wxWidgets-staticlib/bin/wx-config
+#cmake .. -DwxWidgets_CONFIG_EXECUTABLE=~/Develop/wxWidgets-staticlib/bin/wx-config
 check_status "CubicSDR cmake configuration"
-make
+#make
 check_status "CubicSDR make"
 sudo make install
 check_status "CubicSDR installation"
@@ -59,8 +59,8 @@ check_status "CubicSDR installation"
 # Install SoapyRTLSDR
 echo "Installing SoapyRTLSDR..."
 cd ~/SoapyRTLSDR/build
-cmake ..
-make
+#cmake ..
+#make
 sudo make install
 sudo ldconfig
 check_status "SoapyRTLSDR installation"
@@ -68,8 +68,8 @@ check_status "SoapyRTLSDR installation"
 # Install SoapySDRPlay
 echo "Installing SoapySDRPlay..."
 cd ~/SoapySDRPlay/build
-cmake ..
-make
+#cmake ..
+#make
 sudo make install
 sudo ldconfig
 check_status "SoapySDRPlay installation"
