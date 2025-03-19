@@ -70,8 +70,8 @@ sudo make install
 
 # Install Icon Fix
 echo "Fix CubicSDR Menu Icon..."
-cd ~
-cd ~/sbitx-ham-apps/cubicsdr
+
+cd ~/sbitx-ham-apps/cubicsdr/
 sudo ./cubicsdr-icon-fix.sh
 
 echo "Installation complete!"
