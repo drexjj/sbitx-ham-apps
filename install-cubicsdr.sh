@@ -3,7 +3,7 @@
 set -e
 
 echo "======================================"
-echo "  sbitx / CubicSDR drivers installer"
+echo "  sBitx CubicSDR installer"
 echo "  Select which drivers to install"
 echo "======================================"
 echo
