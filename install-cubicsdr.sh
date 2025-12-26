@@ -135,6 +135,15 @@ if [[ $INSTALL_SBITX_SOAPY == "y" ]]; then
     make -j4
     sudo make install
     sudo ldconfig
+    git clone https://github.com/Rhizomatica/sbitx-core.git
+    cd sbitx-core
+    cp ~/sbitx-ham-apps/soapy2sbitx/sbitx_ctl.c ~/sbitx-core
+    mkdir -p build && cd build
+    cmake ..
+    make -j4
+    sudo make install
+    sudo ldconfig
+    
 fi
 
 # ── 3. Application (depends on SoapySDR + drivers) ───────────────────────────
