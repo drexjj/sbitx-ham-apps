@@ -15,7 +15,7 @@ target_link_libraries(SoapySBITX PRIVATE ${SOAPY_SDR_LIBRARIES} Threads::Threads
 set_target_properties(SoapySBITX PROPERTIES PREFIX "")
 
 include(GNUInstallDirs)
-# Common module dir for SoapySDR v0.8 on Debian/RPi. Adjust if yours differs.
+# Common module dir for SoapySDR v0.8-3 on Debian/RPi. Adjust if yours differs.
 install(TARGETS SoapySBITX
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/SoapySDR/modules0.8
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/SoapySDR/modules0.8-3
 )
