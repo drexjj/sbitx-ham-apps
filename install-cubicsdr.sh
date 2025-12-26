@@ -71,6 +71,12 @@ make -j4
 sudo make install
 sudo ldconfig
 
+# Install experimental sBitx SOAPY driver (rx only)
+echo "Installing experimental sBitx SOAPY driver..."
+cd ~/sbitx-ham-apps/cubicsdr
+sudo cp SoapySBITX.so /usr/local/lib/SoapySDR/modules0.8-3
+sudo ldconfig
+
 # Install CubicSDR WITH AUDIO SUPPORT
 echo "Installing CubicSDR (with ALSA / Audio IQ support)..."
 cd ~
