@@ -3,8 +3,8 @@ set -e
 
 # ============================================================
 # piHPSDR + SoapySDR Install Script
-# Raspberry Pi 4 (64-bit)
-# Repo: https://github.com/dl1ycf/pihpsdr
+# Raspberry Pi 4 / 64-bit (Bookworm)
+# dl1ycf/pihpsdr
 # ============================================================
 
 SRC_DIR="$HOME/github"
@@ -13,13 +13,14 @@ PIHPSDR_REPO="https://github.com/dl1ycf/pihpsdr.git"
 JOBS=$(nproc)
 
 echo "============================================"
-echo " piHPSDR + SoapySDR Install (RPi 4 / 64-bit)"
+echo " piHPSDR + SoapySDR Installer"
+echo " Raspberry Pi 4 (64-bit)"
 echo "============================================"
 
 # ------------------------------------------------------------
-# 1. Install dependencies
+# 1. Dependencies
 # ------------------------------------------------------------
-echo "[1/9] Installing dependencies..."
+echo "[1/8] Installing dependencies..."
 
 sudo apt update
 sudo apt install -y \
@@ -35,29 +36,24 @@ sudo apt install -y \
     soapysdr-tools
 
 # ------------------------------------------------------------
-# 2. Prepare source directory
+# 2. Source directory
 # ------------------------------------------------------------
-echo "[2/9] Preparing source directory..."
+echo "[2/8] Preparing source directory..."
 mkdir -p "$SRC_DIR"
 cd "$SRC_DIR"
 
 # ------------------------------------------------------------
 # 3. Clone repositories
 # ------------------------------------------------------------
-echo "[3/9] Cloning repositories..."
+echo "[3/8] Cloning repositories..."
 
-if [ ! -d "wdsp" ]; then
-    git clone "$WDSP_REPO"
-fi
-
-if [ ! -d "pihpsdr" ]; then
-    git clone "$PIHPSDR_REPO"
-fi
+[ ! -d wdsp ] && git clone "$WDSP_REPO"
+[ ! -d pihpsdr ] && git clone "$PIHPSDR_REPO"
 
 # ------------------------------------------------------------
 # 4. Build WDSP
 # ------------------------------------------------------------
-echo "[4/9] Building WDSP..."
+echo "[4/8] Building WDSP..."
 cd "$SRC_DIR/wdsp"
 make clean
 make -j"$JOBS"
@@ -65,14 +61,13 @@ sudo make install
 sudo ldconfig
 
 # ------------------------------------------------------------
-# 5. Build piHPSDR (with Soapy)
+# 5. Build piHPSDR (Soapy enabled)
 # ------------------------------------------------------------
-echo "[5/9] Building piHPSDR..."
+echo "[5/8] Building piHPSDR..."
 cd "$SRC_DIR/pihpsdr"
 
-# Enable SoapySDR support explicitly
+# Ensure Soapy is enabled
 if ! grep -q "SOAPYSDR=1" Makefile; then
-    echo "Enabling SoapySDR support..."
     sed -i 's/^#*SOAPYSDR=.*/SOAPYSDR=1/' Makefile
 fi
 
@@ -80,43 +75,51 @@ make clean
 make -j"$JOBS"
 
 # ------------------------------------------------------------
-# 6. Install piHPSDR
+# 6. Install binary
 # ------------------------------------------------------------
-echo "[6/9] Installing piHPSDR..."
-sudo make install
-sudo ldconfig
+echo "[6/8] Installing piHPSDR..."
+
+sudo mkdir -p /opt/pihpsdr
+sudo cp pihpsdr /opt/pihpsdr/
+sudo chmod +x /opt/pihpsdr/pihpsdr
+
+# Symlink for CLI use
+sudo ln -sf /opt/pihpsdr/pihpsdr /usr/local/bin/pihpsdr
 
 # ------------------------------------------------------------
-# 7. GPIO Info
+# 7. Desktop Entry
 # ------------------------------------------------------------
-echo "--------------------------------------------------"
-echo " GPIO CONFIGURATION (if using HPSDR controller)"
-echo "--------------------------------------------------"
-echo "Add to /boot/config.txt:"
-echo
-echo "[all]"
-echo "gpio=4-13,16-27=ip,pu"
-echo
-echo "Then reboot."
-echo "--------------------------------------------------"
+echo "[7/8] Creating desktop entry..."
+
+sudo tee /usr/share/applications/pihpsdr.desktop > /dev/null <<EOF
+[Desktop Entry]
+Name=piHPSDR
+Comment=HPSDR SDR Client
+Exec=/usr/local/bin/pihpsdr
+Icon=utilities-terminal
+Terminal=false
+Type=Application
+Categories=HamRadio;AudioVideo;
+EOF
+
+sudo chmod 644 /usr/share/applications/pihpsdr.desktop
 
 # ------------------------------------------------------------
-# 8. Verify SoapySDR
-# ------------------------------------------------------------
-echo "[8/9] Verifying SoapySDR..."
-SoapySDRUtil --info || true
-
-# ------------------------------------------------------------
-# 9. Done
+# 8. Final notes
 # ------------------------------------------------------------
 echo "============================================"
-echo " Installation complete!"
+echo " Installation Complete"
 echo "============================================"
 echo
-echo "Run with:"
+echo "Launch from menu or run:"
 echo "  pihpsdr"
 echo
-echo "Soapy devices can be tested with:"
+echo "To verify SoapySDR:"
 echo "  SoapySDRUtil --find"
 echo
-echo "First launch may take time while FFTW wisdom is generated."
+echo "GPIO users:"
+echo "Add to /boot/config.txt if needed:"
+echo "  gpio=4-13,16-27=ip,pu"
+echo
+echo "First run will generate FFTW wisdom."
+echo "============================================"
