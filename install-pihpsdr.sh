@@ -63,13 +63,21 @@ sudo ldconfig
 # ------------------------------------------------------------
 # 5. Build piHPSDR (Soapy enabled)
 # ------------------------------------------------------------
-echo "[5/8] Building piHPSDR..."
+echo "[5/8] Building piHPSDR with SoapySDR enabled..."
+
 cd "$SRC_DIR/pihpsdr"
 
-# Ensure Soapy is enabled
-if ! grep -q "SOAPYSDR=ON" Makefile; then
-    sed -i 's/^#*SOAPYSDR=.*/SOAPYSDR=ON/' Makefile
+# Force SOAPY support ON
+if grep -q "^SOAPY=" Makefile; then
+    sed -i 's/^SOAPY=.*/SOAPY=ON/' Makefile
+else
+    echo "SOAPY=ON" >> Makefile
 fi
+
+# Show confirmation
+echo "----- SoapySDR setting -----"
+grep "^SOAPY" Makefile
+echo "----------------------------"
 
 make clean
 make -j"$JOBS"
