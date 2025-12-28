@@ -27,17 +27,17 @@ sudo apt install -y \
     cmake \
     git
 
-# Install SoapySDR
-echo "Installing SoapySDR..."
-cd ~
-rm -rf SoapySDR
-git clone https://github.com/pothosware/SoapySDR.git
-cd SoapySDR
-mkdir -p build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make -j4
-sudo make install
-sudo ldconfig
+# Install SoapySDR (depecrated)
+#echo "Installing SoapySDR..."
+#cd ~
+#rm -rf SoapySDR
+#git clone https://github.com/pothosware/SoapySDR.git
+#cd SoapySDR
+#mkdir -p build && cd build
+#cmake .. -DCMAKE_BUILD_TYPE=Release
+#make -j4
+#sudo make install
+#sudo ldconfig
 
 # Install SDRplay API
 echo "Installing SDRplay API..."
@@ -59,16 +59,20 @@ make -j4
 sudo make install
 sudo ldconfig
 
-# Install SoapyRTLSDR
-echo "Installing SoapyRTLSDR..."
-cd ~
-rm -rf SoapyRTLSDR
-git clone https://github.com/pothosware/SoapyRTLSDR.git
-cd SoapyRTLSDR
-mkdir -p build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make -j4
-sudo make install
+################################################################################
+# Don't build SoapyRTLSDR since we install soapysdr-module-rtlsdr from # the OS 
+# repositories above
+################################################################################
+# # Install SoapyRTLSDR
+# echo "Installing SoapyRTLSDR..."
+# cd ~
+# rm -rf SoapyRTLSDR
+# git clone https://github.com/pothosware/SoapyRTLSDR.git
+# cd SoapyRTLSDR
+# mkdir -p build && cd build
+# cmake .. -DCMAKE_BUILD_TYPE=Release
+# make -j4
+# sudo make install
 sudo ldconfig
 
 # Install CubicSDR WITH AUDIO SUPPORT
