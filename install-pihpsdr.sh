@@ -67,8 +67,8 @@ echo "[5/8] Building piHPSDR..."
 cd "$SRC_DIR/pihpsdr"
 
 # Ensure Soapy is enabled
-if ! grep -q "SOAPYSDR=1" Makefile; then
-    sed -i 's/^#*SOAPYSDR=.*/SOAPYSDR=1/' Makefile
+if ! grep -q "SOAPYSDR=ON" Makefile; then
+    sed -i 's/^#*SOAPYSDR=.*/SOAPYSDR=ON/' Makefile
 fi
 
 make clean
