@@ -1,94 +1,169 @@
 #pragma once
+
 #include <SoapySDR/Device.hpp>
+#include <SoapySDR/Types.hpp>
+
 #include <alsa/asoundlib.h>
+
 #include <atomic>
+#include <chrono>
 #include <complex>
 #include <cstdint>
 #include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
-#include <climits>
 
 class SBITXDevice : public SoapySDR::Device
 {
 public:
-    explicit SBITXDevice(const SoapySDR::Kwargs &args);
+    SBITXDevice(const SoapySDR::Kwargs &args);
     ~SBITXDevice() override;
 
-    std::string getDriverKey() const override { return "sbitx"; }
-    std::string getHardwareKey() const override { return "sbitx"; }
+    // Identification / info
     SoapySDR::Kwargs getHardwareInfo() const override;
 
-    size_t getNumChannels(const int /*direction*/) const override { return 1; }
-
-    std::vector<double> listSampleRates(const int /*direction*/, const size_t /*channel*/) const override;
+    
+    size_t getNumChannels(const int direction) const override;
+    bool getFullDuplex(const int direction, const size_t channel) const override;
+// Rates / frequency
+    std::vector<double> listSampleRates(const int direction, const size_t channel) const override;
     void setSampleRate(const int direction, const size_t channel, const double rate) override;
-    double getSampleRate(const int /*direction*/, const size_t /*channel*/) const override;
+    double getSampleRate(const int direction, const size_t channel) const override;
 
-    void setFrequency(const int direction, const size_t channel, const std::string &name,
-                      const double frequency, const SoapySDR::Kwargs &args) override;
-    double getFrequency(const int /*direction*/, const size_t /*channel*/, const std::string &name) const override;
+    void setFrequency(const int direction, const size_t channel,
+                      const std::string &name, const double frequency,
+                      const SoapySDR::Kwargs &args) override;
+    double getFrequency(const int direction, const size_t channel,
+                        const std::string &name) const override;
+    std::vector<std::string> listGains(
+    const int direction,
+    const size_t channel) const override;
 
-    std::vector<std::string> getStreamFormats(const int /*direction*/, const size_t /*channel*/) const override;
-    std::string getNativeStreamFormat(const int /*direction*/, const size_t /*channel*/, double &fullScale) const override;
+    SoapySDR::Range getGainRange(
+    const int direction,
+    const size_t channel,
+    const std::string &name) const override;
+
+    double getGain(
+    const int direction,
+    const size_t channel,
+    const std::string &name) const override;
+
+    void setGain(
+    const int direction,
+    const size_t channel,
+    const std::string &name,
+    const double value) override;
+    std::vector<std::string> listFrequencies(const int direction, const size_t channel) const override;
+    SoapySDR::RangeList getFrequencyRange(const int direction, const size_t channel, const std::string &name) const override;
+
+    // Streams
+    std::vector<std::string> getStreamFormats(const int direction, const size_t channel) const override;
+    std::string getNativeStreamFormat(const int direction, const size_t channel, double &fullScale) const override;
 
     SoapySDR::Stream *setupStream(const int direction, const std::string &format,
-                                 const std::vector<size_t> &channels = std::vector<size_t>(),
-                                 const SoapySDR::Kwargs &args = SoapySDR::Kwargs()) override;
-    void closeStream(SoapySDR::Stream *stream) override;
+                                  const std::vector<size_t> &channels,
+                                  const SoapySDR::Kwargs &args) override;
 
-    int activateStream(SoapySDR::Stream *stream, const int flags = 0,
-                       const long long timeNs = 0, const size_t numElems = 0) override;
-    int deactivateStream(SoapySDR::Stream *stream, const int flags = 0,
-                         const long long timeNs = 0) override;
+    void closeStream(SoapySDR::Stream *stream) override;
+    // Antenna
+    std::vector<std::string> listAntennas(const int, const size_t) const override;
+    void setAntenna(const int, const size_t, const std::string &) override;
+    std::string getAntenna(const int, const size_t) const override;
+
+    int activateStream(SoapySDR::Stream *stream, const int flags,
+                       const long long timeNs, const size_t numElems) override;
+
+    int deactivateStream(SoapySDR::Stream *stream, const int flags,
+                         const long long timeNs) override;
 
     int readStream(SoapySDR::Stream *stream, void * const *buffs, const size_t numElems,
-                   int &flags, long long &timeNs, const long timeoutUs = 100000) override;
+                   int &flags, long long &timeNs, const long timeoutUs) override;
+
+    int writeStream(SoapySDR::Stream *stream, const void * const *buffs, const size_t numElems,
+                    int &flags, const long long timeNs, const long timeoutUs) override;
 
 private:
-    struct RxStream { int placeholder; };
+    // Stream tag so closeStream knows what it is
+    struct SBITXStream
+    {
+        int direction; // SOAPY_SDR_RX or SOAPY_SDR_TX
+        size_t channel;
+    };
+    
+    //std::atomic<float> txPaGain_{1.0f}; //linear pa drive
+    //double txGainDb_ = 0.0; //tx if gain
+    // ALSA
+    bool openAlsaCapture();
+    void closeAlsaCapture();
+    bool openAlsaPlayback();
+    void closeAlsaPlayback();
 
+    // RX thread + ringbuffer
     void startRxThread();
     void stopRxThread();
     void rxThreadMain();
 
-    bool openAlsaCapture();
-    void closeAlsaCapture();
+    void rbWrite(const std::complex<float> *in, size_t n);
+    size_t rbRead(std::complex<float> *out, size_t n);
 
-    void rbWrite(const std::complex<float>* in, size_t n);
-    size_t rbRead(std::complex<float>* out, size_t n);
+    // Control (TCP to sbitx_ctrl)
+    bool ctrlSendLine(const std::string &line) const;
+    bool ctrlQueryLine(const std::string &line, std::string &reply) const;
+    bool ctrlSetFreqHz(long long hz) const;
+    bool ctrlGetFreqHz(long long &hz) const;
+    bool ctrlSetPTT(bool on) const;
 
-    // --- sbitx_ctrl TCP control (127.0.0.1:9999 by default) ---
-    bool ctrlSetHwFreqHz(long long hz) const;
-    bool ctrlGetHwFreqHz(long long &hz) const;
+private:
+    // Args / config
+    std::string alsaDev_ = "hw:0,0";
 
-    bool tcpSendRecvLine(const std::string &lineToSend, std::string &replyLine) const;
+    unsigned int fs_ = 48000;
+    unsigned int capFs_ = 96000;
+    unsigned int pbFs_  = 96000;
 
-    std::string ctrlHost_;
-    int ctrlPort_{9999};
+    double ifHz_ = 24000.0;
+    bool iqSwap_ = false;
+    bool iqInv_  = false; // invert Q if needed (fix spectrum mirror)
 
-    std::string alsaCapDev_;
-    unsigned int fs_;      // Soapy stream sample rate (IQ)
-    unsigned int capFs_;   // ALSA capture sample rate (WM8731)
-    double ifHz_;
-    bool iqSwap_;
-    bool rt_;
-    int rtPrio_;
-    mutable double tuneHz_{0.0};  // RF frequency exposed to apps (cached)
+    snd_pcm_uframes_t periodFrames_ = 1000;
+    snd_pcm_uframes_t bufferFrames_ = 4000;
 
-    snd_pcm_t *capHandle_{nullptr};
-    snd_pcm_uframes_t periodFrames_{1000};
-    snd_pcm_uframes_t bufferFrames_{4000};
+    bool rt_ = false;
+    int rtPrio_ = 70;
 
-    std::thread rxThread_;
+    // ctrl="host:port"  (default 127.0.0.1:9999)
+    std::string ctrlHost_ = "127.0.0.1";
+    int ctrlPort_ = 9999;
+    bool ctrlEnabled_ = true;
+
+    // State
+    mutable std::atomic<long long> tuneHz_{0};
+
+    // ALSA handles
+    snd_pcm_t *capHandle_ = nullptr;
+    snd_pcm_t *pbHandle_  = nullptr;
+
+    std::atomic<bool> txActive_{false};
+    std::atomic<long long> lastTxNs_{0};
+    // RX thread control
     std::atomic<bool> rxRun_{false};
+    std::thread rxThread_;
 
-    std::mutex rbMutex_;
+    // Ring buffer for IQ
     std::vector<std::complex<float>> rb_;
-    size_t rbHead_{0};
-    size_t rbTail_{0};
-    size_t rbSize_{0};
+    size_t rbSize_ = 0;
+    size_t rbHead_ = 0;
+    size_t rbTail_ = 0;
+    std::mutex rbMutex_;
 
-    double phase_{0.0};
+    // Stream users (THIS fixes your rxUsers_/txUsers_ errors)
+    std::atomic<int> rxUsers_{0};
+    std::atomic<int> txUsers_{0};
+
+    // TX buffer reuse (THIS fixes txFrames_ errors)
+    std::vector<int32_t> txFrames_;
+    double txPhase_ = 0.0;
+    double rxPhase_ = 0.0;
 };
