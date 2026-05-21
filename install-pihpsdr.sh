@@ -25,6 +25,7 @@ echo "[1/8] Installing dependencies..."
 sudo apt update
 sudo apt install -y \
     git build-essential cmake pkg-config \
+    libcurl4-openssl-dev \
     libfftw3-dev \
     libgtk-3-dev \
     libpulse-dev libpulse-mainloop-glib0 \
